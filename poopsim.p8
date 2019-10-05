@@ -7,6 +7,8 @@ drop_1 = {sprite=192,
 x=60,
 y=0,
 breaking=0}
+char_1 = {sprite=64,
+x=0, y=120}
 end
 
 
@@ -16,6 +18,10 @@ function _update()
 	if drop_1.breaking == 0	then
 	 move_drop(drop_1)
 	end
+	if(btn(0)) then move_left(char_1) end
+	if(btn(1)) then move_right(char_1) end
+	if(btn(2)) then move_up(char_1) end
+	if(btn(3)) then move_down(char_1) end
 end
 
 function move_drop(drop)
@@ -34,6 +40,11 @@ function _draw()
 	cls()
 	map(0,0)
 	draw_drop(drop_1)
+	draw_char(char_1)
+end
+
+function draw_char(char)
+	spr(char.sprite, char.x, char.y)
 end
 
 function draw_drop(drop)
@@ -54,6 +65,23 @@ function draw_breaking_drop(drop)
 	spr(drop.sprite, drop.x,drop.y)
 	drop.breaking += 1
 end
+-->8
+function move_up(char)
+	char.y-=1
+end
+
+function move_right(char)
+	char.x+=1
+end
+
+function move_left(char)
+	char.x-=1
+end
+
+function move_down(char)
+	char.y+=1
+end
+
 __gfx__
 0000000066666660bbbbbbbb3c3c33cc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000060000666bbbbbbbbc3333c33000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
