@@ -130,6 +130,40 @@ function check_collision_floor(drop)
 	return fget(mget((drop.x+4)/8,(drop.y+offset)/8), 1)
 end
 
+function side_col(flag)
+	player.hitbox = {0,0,0,0}
+	
+	--bottom
+ for i = 0,player.width,1 do 
+ 	if (fget(mget(flr((player.corners[3].x+i)/8),flr((player.corners[3].y)/8)), flag)) then 
+ 		player.hitbox[1]+=1   
+  end 
+ end
+ 
+ --right
+ for i = 0,player.height,1 do 
+ 	if (fget(mget(flr((player.corners[2].x)/8),flr((player.corners[2].y+i)/8)), flag)) then 
+ 		player.hitbox[2]+=1   
+  end  
+ end
+ 
+ --top
+ for i = 0,player.width,1 do 
+ 	if (fget(mget(flr((player.corners[1].x+i)/8),flr((player.corners[1].y)/8)), flag)) then 
+ 		player.hitbox[3]+=1   
+  end 
+ end
+    
+ --left
+ for i = 0,player.height,1 do 
+ 	if (fget(mget(flr((player.corners[1].x+i)/8),flr((player.corners[1].y+i)/8)), flag)) then 
+ 		player.hitbox[4]+=1   
+  end
+ end
+     
+end
+	
+
 function box_col(flag)
     player.inner_hitbox = {0,0,0,0}
     player.hitbox = {0,0,0,0}
