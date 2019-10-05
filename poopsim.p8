@@ -9,6 +9,25 @@ y=0,
 breaking=0}
 char_1 = {sprite=64,
 x=0, y=120}
+
+jump_time=5
+
+player = {}
+player.x = 72
+player.y = 72
+player.speed = 0
+player.speed_max = 2
+player.jump_speed = 0
+player.jump_strenght = 0
+player.jump_time = jump_time
+player.is_jumping = false
+player.on_ground = true
+player.facing = false
+player.run_frames = {64,65,66,67,68,69,70,71}
+player.run_state = 1
+player.is_running = false
+player.sprite = 64
+ 
 end
 
 
@@ -41,6 +60,11 @@ function _draw()
 	map(0,0)
 	draw_drop(drop_1)
 	draw_char(char_1)
+	draw_player(player)
+end
+
+function draw_player(player)
+	spr(player.sprite, player.x, player.y)
 end
 
 function draw_char(char)
@@ -67,19 +91,23 @@ function draw_breaking_drop(drop)
 end
 -->8
 function move_up(char)
-	char.y-=1
+	char.y-=2
+	if(char.y<0) then char.y=120 end
 end
 
 function move_right(char)
-	char.x+=1
+	char.x+=2
+	if(char.x>120) then char.x=0 end
 end
 
 function move_left(char)
-	char.x-=1
+	char.x-=2
+	if(char.x<0) then char.x=120 end
 end
 
 function move_down(char)
-	char.y+=1
+	char.y+=2
+	if(char.y>120) then char.y=0 end
 end
 
 __gfx__
