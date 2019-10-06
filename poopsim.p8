@@ -34,6 +34,8 @@ function _init()
     player.corners = {}
     player.hitbox = {0,0,0,0}
     player.inner_hitbox = {0,0,0,0}
+    player.vertical_tiles = 1
+    player.horizontal_tiles = 1
 
     player.upper_left = {x=0,y=0}
     player.upper_right = {x=0,y=0}
@@ -327,7 +329,7 @@ function load_map()
 end
 
 function draw_player(player)
-	spr(player.sprite, player.x, player.y, 1,1, player.is_flipped)
+	spr(player.sprite, player.x, player.y, player.horizontal_tiles,player.vertical_tiles, player.is_flipped)
 
     -- stuff
     -- spr(16, player.upper_left.x, player.upper_left.y)
@@ -417,7 +419,9 @@ function move_left(char)
 end
 
 function animate_character()
-    if player.level == 3 then
+    if player.level == 4 then
+        animate_character_lvl4()
+    elseif player.level == 3 then
         animate_character_lvl3()
     elseif player.level == 2 then
         animate_character_lvl2()
@@ -505,14 +509,62 @@ function animate_character_lvl3()
     end
 end
 
+function animate_character_lvl4()
+-- lvl1
+    if (player.on_ground) == true and player.is_running == false then
+        player.sprite = 88
+    end
+    -- animate running
+    if (player.is_running) == true then
+        player.sprite+=1
+        if player.sprite > 91 then
+            player.sprite = 89
+        end
+    end
+    -- animate jumping
+    if player.is_jumping == true then
+        if player.sprite < 93  then
+            player.sprite = 93
+        elseif player.sprite < 94 then
+            player.sprite += 1
+        end
+    -- animate falling
+    elseif player.is_falling == true then
+        player.sprite = 95
+    end
+end
+
 function level_up()
     player.level += 1
+    -- if you level up to 4, move up 8 pixles
+    if (player.level == 4) then
+        player.y -= 8
+    end
     sfx(7)
+    set_level_variablers()
 end
 
 function level_down()
     player.level -= 1
     sfx(6)
+    set_level_variablers()
+end
+
+function set_level_variablers()
+    -- default values (lvl1)
+    player.vertical_tiles = 1
+    player.horizontal_tiles = 1
+    player.width = 8
+    player.height = 3
+    player.whitespace = 5
+
+    if player.level == 4 then
+        player.vertical_tiles = 2
+        player.horizontal_tiles = 1
+        player.width = 8
+        player.height = 14
+        player.whitespace = 2
+    end
 end
 
 __gfx__
