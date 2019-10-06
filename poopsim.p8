@@ -140,23 +140,40 @@ function check_colision()
         local predicted_y = player.y + player.gravity
         local first_y_col = -1
 
-        -- check for future collision
-        for ly = player.y,predicted_y,1 do
-            for lx = player.x,player.x+player.width,1 do
-                if (fget(mget((lx)/8,(ly+7)/8), 1) and first_y_col == -1) then
-                    first_y_col = ly
+        --calculate jumping collision
+        if(player.is_jumping) then
+            for ly = player.y, predicted_y,-1 do
+                for lx = player.x,player.x+player.width,1 do
+                    if (fget(mget((lx)/8,(ly)/8), 1) and first_y_col == -1) then
+                        first_y_col = ly
+                        break
+                    end
+                end
+                if first_y_col != -1 then
                     break
                 end
             end
-            if first_y_col != -1 then
-                break
+        end
+        --calculate falling collision
+        if(player.is_falling) then
+            for ly = player.y,predicted_y,1 do
+                for lx = player.x,player.x+player.width,1 do
+                    if (fget(mget((lx)/8,(ly+7)/8), 1) and first_y_col == -1) then
+                        first_y_col = ly-1
+                        break
+                    end
+                end
+                if first_y_col != -1 then
+                    break
+                end
             end
         end
 
+        --set Y coordinates based on calculated collision
         if first_y_col == -1 then
             player.y = predicted_y
         else
-            player.y = first_y_col-1
+            player.y = first_y_col
         end
     end
 end
@@ -233,9 +250,8 @@ function _draw()
 	    draw_drop(drop)
     end
 
-    if player.is_falling then print("is_falling",0,0,7) end
-    if player.is_jumping then print("is_jumping",0,5,7) end
-    if player.on_ground then print("on_ground",0,10,7) end    
+    print("player y " .. player.y,0,7,7)
+    print("predicted y " .. player.y+player.gravity,0,0,7)
     
     -- print("HEALTH - " .. player.level,0,0,7)
     -- print("UL - (" .. player.corners[1].x .. "," .. player.corners[1].y .. ")")
