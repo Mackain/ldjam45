@@ -58,41 +58,6 @@ function _init()
     initialize_map()
 end
 
-function restart_game()
-    game_over=false
-    --reset player stats
-    player.x = 72
-    player.y = 72
-    player.whitespace = 5
-    player.speed = 0
-    player.speed_max = 2
-    player.jump_speed = 0
-    player.jump_strenght = 0
-    player.jump_time = jump_time
-    player.is_jumping = false
-    player.is_falling = false
-    player.is_flipped = true
-    player.on_ground = true
-    player.facing = false
-    player.run_state = 1
-    player.is_running = false
-    player.sprite = 64
-    player.level = 3
-    player.width = 8
-    player.height = 3
-    player.force = 0
-    player.gravity = 0
-    player.corners = {}
-    player.hitbox = {0,0,0,0}
-    player.inner_hitbox = {0,0,0,0}
-    player.upper_left = {x=0,y=0}
-    player.upper_right = {x=0,y=0}
-    player.lower_left= {x=0,y=0}
-    player.lower_right = {x=0,y=0}
-
-    drops = initialize_map()
-end
-
 function initialize_map()
     max_y = map_settings.start_y + map_settings.height
     max_x = map_settings.start_x + map_settings.width
@@ -170,8 +135,6 @@ function _update()
         player.on_ground=false
         sfx(1)
     end
-
-    if(btnp(5) and game_over) then restart_game() end
 
     player.hitbox = side_col(1)
 
@@ -352,7 +315,7 @@ function _draw()
 	cls()
 	map(map_settings.start_x,map_settings.start_y)
 
-    if game_over then print("game over - press x to restart",2,64,7)
+    if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
     else
         detect_player_damage()
     detect_player_health()
