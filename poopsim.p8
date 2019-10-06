@@ -8,6 +8,8 @@ function _init()
     game_over = false
     music(0)
 
+    goal_counter = 0
+    health_counter = 0
     called_map = 0
     player = {}
     drops = {}
@@ -130,6 +132,18 @@ end
 
 -->8
 function _update()
+    if goal_counter == 5 then
+        goal_counter = 0
+    elseif goal_counter > 0 then
+        goal_counter += 1
+    end
+    
+    if health_counter == 5 then
+        health_counter = 0
+    elseif health_counter > 0 then
+        health_counter += 1
+    end
+
     player.is_running = false
     player.is_flipped = false
 	if(btn(0)) then
@@ -188,7 +202,8 @@ function check_goal()
     goal_hitbox = side_col(7)
 
     for hitbox in all(goal_hitbox) do
-        if(hitbox > 0) then         
+        if(hitbox > 0) and goal_counter == 0 then
+            goal_counter = 1
             load_new_map()
         end
     end
@@ -422,6 +437,9 @@ function detect_player_damage()
 end
 
 function detect_player_health()
+    if health_counter > 0 then
+        return
+    end
    if(fget(player.upper_right_cell, 2)) then
        level_up()
        mset((player.upper_right.x/8)+map_settings.start_x,(player.upper_right.y/8)+map_settings.start_y, blank_sprite)
@@ -570,6 +588,7 @@ end
 
 function level_up()
     player.level += 1
+    health_counter = 1
     -- if you level up to 4, move up 8 pixles
     if (player.level == 4) then
         player.y -= 8
