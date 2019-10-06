@@ -8,6 +8,9 @@ function _init()
     game_over = false
     music(0)
 
+    is_intro = true
+    intro_new_y = 150
+    intro_counter = 0
     counter_frame_limit = 10
     goal_counter = 0
     health_counter = 0
@@ -46,6 +49,8 @@ function _init()
     player.upper_right = {x=0,y=0}
     player.lower_left= {x=0,y=0}
     player.lower_right = {x=0,y=0}
+
+    intro_text = { "DISCOVER YOURSELF...", "GO OUT" , "A POOP" , "YOU ARE NOTHING" }
     
     offset = 8
     drop_sprite = 192
@@ -56,7 +61,7 @@ function _init()
     blank_sprite = 48
     sky_sprite = 47
     drop_anim_speed = 3
-    map_settings = {start_x = 0, start_y = 0, width = 16, height=16}
+    map_settings = {start_x = 0, start_y = 16, width = 16, height=16}
 
     initialize_map()
 end
@@ -109,6 +114,10 @@ function _update()
 
     player.is_running = false
     player.is_flipped = false
+    if(is_intro and btnp(6)) then
+        poke(0x5f30,1) 
+        start_game()
+    end
 	if(btn(0)) then
         move_left(player)
         player.is_flipped = true
@@ -326,7 +335,14 @@ end
 function _draw()
 	cls()
 	map(map_settings.start_x,map_settings.start_y)
-
+    
+    if is_intro then
+        draw_intro_text()
+        draw_press_start()
+        draw_game_title()
+    else
+        print("health: " .. player.level,5,5,7)
+    end
     if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
     else
         detect_player_damage()
@@ -344,7 +360,6 @@ function _draw()
     -- print("drops" .. called_map, 0 ,25 , 7)
     -- print("BOX" .. player.hitbox[1] .. "-" .. player.hitbox[2] .. "-" .. player.hitbox[3] .. "-" .. player.hitbox[4])
         draw_player(player)
-        print("health: " .. player.level,0,5,7)
     end
 end
 
@@ -558,6 +573,42 @@ function animate_character_lvl4()
     elseif player.is_falling == true then
         player.sprite = 95
     end
+end
+
+function draw_intro_text()
+    for i,text in pairs(intro_text) do
+        new_y = 150-((i*7)+intro_counter)
+        print(text,hcenter(text), new_y, 7)
+        if(i == 4) and new_y < 0 then
+            start_game()
+        end
+    end
+        intro_counter += 0.2
+end
+
+function draw_press_start()
+    print("PRESS ENTER",80,120,6)
+end
+
+function draw_game_title()
+    print("POOP",80,7,4)
+    print("SIM",80,14,12)
+    spr(96,100,8)
+end
+
+function start_game()
+    is_intro = false
+    map_settings.start_x = 0
+    map_settings.start_y = 0
+    initialize_map()
+end
+
+function hcenter(s)
+  -- screen center minus the
+  -- string length times the 
+  -- pixels in a char's width,
+  -- cut in half
+  return 64-#s*2
 end
 
 function level_up()
