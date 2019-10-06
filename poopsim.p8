@@ -95,17 +95,39 @@ function _update()
 
     
     --box_col(1)
+    -- TODO do x pos FIRST otherwise Y doesnt work.
 
     player.gravity = gravity - player.force
     if(player.hitbox[1]>1 or player.hitbox[3]>1) then
         player.force=0
     else 
-        player.y += player.gravity
+
+        local predicted_y = player.y + player.gravity
+        local first_y_col = -1
+
+        -- check for future collision
+        for ly = player.y,predicted_y,1 do
+            for lx = player.x,player.x+player.width,1 do
+                if (fget(mget((lx)/8,(ly+7)/8), 1) and first_y_col == -1) then
+                    first_y_col = ly
+                    break
+                end
+            end
+            if first_y_col != -1 then
+                break
+            end
+        end
+
+        if first_y_col == -1 then
+            player.y = predicted_y
+        else
+            player.y = first_y_col-1
+        end
     end
     --inner hitbox stuff
-    if(player.inner_hitbox[3]==1 and player.inner_hitbox[4]==1) then
-        player.y-=1
-    end
+    --if(player.inner_hitbox[3]==1 and player.inner_hitbox[4]==1) then
+    --    player.y-=1
+    --end
 
     if (player.force > 0) then
         player.force *= 0.9
@@ -267,6 +289,8 @@ function _draw()
     spr(16, player.x, player.y+player.height-1+5)
     --lower right
     spr(16, player.x+player.width-1, player.y+player.height-1+5)
+
+    spr(16, 75, 75)
 end
 
 function draw_player(player)
