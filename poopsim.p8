@@ -44,6 +44,7 @@ function _init()
     drop_sprite = 192
     poop_sprite = 208
     wet_floor = 003
+    dry_floor = 002
     blank_sprite = 63
     drop_anim_speed = 3
     map_settings = {start_x = 0, start_y = 0, width = 16, height=16}
@@ -268,7 +269,7 @@ end
 function _draw()
 	cls()
 	map(map_settings.start_x,map_settings.start_y)
-    detect_player_damage(player.corners)
+    detect_player_damage()
     detect_player_health(player.corners)
     for drop in all(drops) do
 	    draw_drop(drop)
@@ -278,7 +279,7 @@ function _draw()
     -- if(player.is_jumping) print("jumping",0,6,7)
     -- if(player.on_ground) print("on_ground",0,12,7)
     -- print("gravity: " .. player.gravity,0,18,7)
-    -- print("force: " .. player.force,0,24,7)
+    -- print("level: " .. player.level,0,0,7)
 
     -- print("UL - (" .. player.corners[1].x .. "," .. player.corners[1].y .. ")")
     -- print("UR - (" .. player.corners[2].x .. "," .. player.corners[2].y .. ")")
@@ -339,12 +340,16 @@ function draw_breaking_drop(drop)
 	drop.breaking += 1
 end
 
-function detect_player_damage(corners)
+function detect_player_damage()
     gets_damage = false
-    for corner in all(corners) do
-        if not gets_damage then
-            cell =  mget(corner.x/8,corner.y/8)
-            gets_damage = fget(cell, 0)
+
+    player_floor_y= player.y+player.whitespace+player.height
+
+    for player_floor_x = player.x,player.x+player.width-1,1 do
+        if (fget(mget((player_floor_x)/8,(player_floor_y)/8), 0) and not gets_damage) then
+            gets_damage=true
+            mset((player_floor_x)/8,(player_floor_y)/8,dry_floor)
+            break
         end
     end
 
