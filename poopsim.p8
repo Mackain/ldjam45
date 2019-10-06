@@ -19,6 +19,7 @@ function _init()
     player.jump_time = jump_time
     player.is_jumping = false
     player.is_falling = false
+    player.is_flipped = true
     player.on_ground = true
     player.facing = false
     player.run_frames = {64,65,66,67,68,69,70,71}
@@ -80,10 +81,26 @@ end
 
 -->8
 function _update()
-    
-	if(btn(0)) then move_left(player) end
-	if(btn(1)) then move_right(player) end
-    if(btnp(2)) then
+    player.is_running = false
+    player.is_flipped = false
+	if(btn(0)) then
+        move_left(player)
+        player.is_flipped = true
+        if (player.on_ground == true) then
+            player.is_running = true
+        else
+            player.is_running = false
+        end
+    end
+	if(btn(1)) then 
+        move_right(player)
+        if (player.on_ground == true) then
+            player.is_running = true
+        else
+            player.is_running = false
+        end
+    end
+    if(btnp(2) and player.on_ground == true) then
         player.y -=1
         player.force = 8
         player.is_jumping=true
@@ -110,6 +127,7 @@ function _update()
         move_drop(drop)
         end
     end
+    animate_character()
 end
 
 function check_colision()
@@ -234,7 +252,7 @@ function _draw()
 end
 
 function draw_player(player)
-	spr(player.sprite, player.x, player.y)
+	spr(player.sprite, player.x, player.y, 1,1, player.is_flipped)
 end
 
 function draw_drop(drop)
@@ -301,6 +319,33 @@ function move_left(char)
     if(player.hitbox[4]<2) then
  	    char.x-=2
 	    if(char.x<0) then char.x=120 end
+    end
+end
+
+function animate_character()
+    -- lvl1
+    if (player.on_ground) == true then
+        player.sprite = 64
+    end
+    -- animate running
+    if (player.is_running) == true then
+        player.sprite = 65
+    end
+    -- animate jumping
+    if player.is_jumping == true then
+        if player.sprite < 67  then
+            player.sprite = 67
+        elseif player.sprite < 68 then
+            player.sprite += 1
+        end
+    -- animate falling
+    elseif player.is_falling == true then
+        if player.sprite < 69  then
+            player.sprite = 69
+        end
+        if player.sprite >= 69 and player.sprite < 70 then
+            player.sprite += 1
+        end
     end
 end
 
