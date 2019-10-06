@@ -143,7 +143,7 @@ function check_colision()
         --calculate jumping collision
         if(player.is_jumping) then
             for ly = player.y, predicted_y,-1 do
-                for lx = player.x,player.x+player.width,1 do
+                for lx = player.x,player.x+player.width-1,1 do
                     if (fget(mget((lx)/8,(ly)/8), 1) and first_y_col == -1) then
                         first_y_col = ly
                         break
@@ -157,7 +157,7 @@ function check_colision()
         --calculate falling collision
         if(player.is_falling) then
             for ly = player.y,predicted_y,1 do
-                for lx = player.x,player.x+player.width,1 do
+                for lx = player.x,player.x+player.width-1,1 do
                     if (fget(mget((lx)/8,(ly+7)/8), 1) and first_y_col == -1) then
                         first_y_col = ly-1
                         break
@@ -249,10 +249,13 @@ function _draw()
     for drop in all(drops) do
 	    draw_drop(drop)
     end
-
-    print("player y " .. player.y,0,7,7)
-    print("predicted y " .. player.y+player.gravity,0,0,7)
     
+    -- if(player.is_falling) print("falling",0,0,7)
+    -- if(player.is_jumping) print("jumping",0,6,7)
+    -- if(player.on_ground) print("on_ground",0,12,7)
+    -- print("gravity: " .. player.gravity,0,18,7)
+    -- print("force: " .. player.force,0,24,7)
+
     -- print("HEALTH - " .. player.level,0,0,7)
     -- print("UL - (" .. player.corners[1].x .. "," .. player.corners[1].y .. ")")
     -- print("UR - (" .. player.corners[2].x .. "," .. player.corners[2].y .. ")")
