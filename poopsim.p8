@@ -202,7 +202,7 @@ function check_colision()
         if(player.is_falling) then
             for ly = player.y,predicted_y,1 do
                 for lx = player.x,player.x+player.width-1,1 do
-                    if (fget(mget((lx)/8,(ly+7)/8), 1) and first_y_col == -1) then
+                    if (fget(mget((lx)/8,(ly+player.height+player.whitespace-1)/8), 1) and first_y_col == -1) then
                         first_y_col = ly-1
                         break
                     end
