@@ -211,19 +211,19 @@ function check_drop_collision_player(drop)
     for dropx=flr(drop.x), flr(drop.x)+8,1 do
         for dropy=flr(drop.y), flr(drop.y)+8 ,1 do
             if flr(player.upper_left.x) == dropx and flr(player.upper_left.y) == dropy then
-                player.level -= 1
+                level_down()
                 return true
             end
             if flr(player.upper_right.x) == dropx and flr(player.upper_right.y) == dropy then
-                player.level -= 1
+                level_down()
                 return true
             end
             if flr(player.lower_left.x) == dropx and flr(player.lower_left.y) == dropy then
-                player.level -= 1
+                level_down()
                 return true
             end
             if flr(player.lower_right.x) == dropx and flr(player.lower_right.y) == dropy then
-                player.level -= 1
+                level_down()
                 return true
             end
         end
@@ -354,7 +354,7 @@ function detect_player_damage()
     end
 
     if gets_damage then
-        player.level -= 1
+       level_down()
     end
 end
 
@@ -364,7 +364,7 @@ function detect_player_health(corners)
        cell = mget(corner.x/8,corner.y/8)
        gets_health = fget(cell, 2)
        if gets_health then
-            player.level += 1
+            level_up()
             mset(corner.x/8, corner.y/8, blank_sprite)
         end
     end   
@@ -486,6 +486,16 @@ function animate_character_lvl3()
     elseif player.is_falling == true then
         player.sprite = 103
     end
+end
+
+function level_up()
+    player.level += 1
+    sfx(7)
+end
+
+function level_down()
+    player.level -= 1
+    sfx(6)
 end
 
 __gfx__
@@ -761,6 +771,8 @@ __sfx__
 0114000027050270502705027050250502505025050000002a0502a0502a0502a050270502705027050000002c0502c0502c05027050270502705027050270502e0502e0502e0502c0502c0502c0502a05000000
 011400000405012000100001300003050030000c050100000405012000100001300003050030000c050100000405012000100001300003050030000c050100000405012000100001300003050030000c05010000
 011400002561326700100002c6131f700030002c613100002561326700100002c6131f700030002c613100002561326700100002c6131f700030002c613100002561326700100002c6131f700030002c61310000
+000100000000000000000003805038050000003305000000000002d050000002905026050250500000022050000001f0501c0500000018050150500000012050100500c050090500705007050000000000000000
+00010000000000000000000000000d050000001205000000160501a05000000000001e0501f0502105023050260502a050000002f0500000032050350503705039050000003c0503e0503f050000000000000000
 __music__
 02 02040544
 00 42434344
