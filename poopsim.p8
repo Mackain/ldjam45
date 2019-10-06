@@ -8,6 +8,7 @@ function _init()
     game_over = false
     music(0)
 
+    counter_frame_limit = 10
     goal_counter = 0
     health_counter = 0
     called_map = 0
@@ -97,17 +98,7 @@ end
 
 -->8
 function _update()
-    if goal_counter == 5 then
-        goal_counter = 0
-    elseif goal_counter > 0 then
-        goal_counter += 1
-    end
-    
-    if health_counter == 5 then
-        health_counter = 0
-    elseif health_counter > 0 then
-        health_counter += 1
-    end
+    check_counters()
 
     player.is_running = false
     player.is_flipped = false
@@ -159,6 +150,20 @@ function _update()
     detect_player_health()
 
     animate_character()
+end
+
+function check_counters()
+    if goal_counter == counter_frame_limit then
+        goal_counter = 0
+    elseif goal_counter > 0 then
+        goal_counter += 1
+    end
+    
+    if health_counter == counter_frame_limit then
+        health_counter = 0
+    elseif health_counter > 0 then
+        health_counter += 1
+    end
 end
 
 function check_goal()
@@ -231,8 +236,8 @@ function check_colision()
     player.lower_right = {x=player.x + player.width - 1, y=player.y+player.whitespace + player.height - 1}
     player.upper_left_cell = mget((player.upper_left.x/8)+map_settings.start_x, (player.upper_left.y/8)+map_settings.start_y) 
     player.upper_right_cell = mget((player.upper_right.x/8)+map_settings.start_x, (player.upper_right.y/8)+map_settings.start_y)
-    player.lower_left_cell = mget((player.lower_right.x/8)+map_settings.start_x, (player.lower_left.y/8)+map_settings.start_y)
-    player.lower_right_cell = mget((player.lower_left.x/8)+map_settings.start_x, (player.lower_right.y/8)+map_settings.start_y)
+    player.lower_left_cell = mget((player.lower_left.x/8)+map_settings.start_x, (player.lower_left.y/8)+map_settings.start_y)
+    player.lower_right_cell = mget((player.lower_right.x/8)+map_settings.start_x, (player.lower_right.y/8)+map_settings.start_y)
 end
 
 function move_drop(drop)
@@ -318,7 +323,7 @@ function _draw()
     if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
     else
         detect_player_damage()
-    detect_player_health()
+        detect_player_health()
         for drop in all(drops) do
             draw_drop(drop)
         end
@@ -400,21 +405,20 @@ function detect_player_damage()
 end
 
 function detect_player_health()
-    if health_counter > 0 then
-        return
-    end
-   if(fget(player.upper_right_cell, 2)) then
-       level_up()
-       mset((player.upper_right.x/8)+map_settings.start_x,(player.upper_right.y/8)+map_settings.start_y, blank_sprite)
-   elseif (fget(player.upper_left_cell, 2)) then
-       level_up()
-       mset((player.upper_left.x/8)+map_settings.start_x,(player.upper_left.y/8)+map_settings.start_y, blank_sprite)
-    elseif (fget(player.lower_left_cell, 2)) then
-       level_up()
-       mset((player.lower_left.x/8)+map_settings.start_x,(player.lower_left.y/8)+map_settings.start_y, blank_sprite)
-    elseif (fget(player.lower_right_cell, 2)) then
-       level_up()
-       mset((player.lower_right.x/8)+map_settings.start_x,(player.lower_right.y/8)+map_settings.start_y, blank_sprite)
+    if health_counter == 0 then
+        if(fget(player.upper_right_cell, 2)) then
+            level_up()
+            mset((player.upper_right.x/8)+map_settings.start_x,(player.upper_right.y/8)+map_settings.start_y, blank_sprite)
+        elseif (fget(player.upper_left_cell, 2)) then
+            level_up()
+            mset((player.upper_left.x/8)+map_settings.start_x,(player.upper_left.y/8)+map_settings.start_y, blank_sprite)
+        elseif (fget(player.lower_left_cell, 2)) then
+            level_up()
+            mset((player.lower_left.x/8)+map_settings.start_x,(player.lower_left.y/8)+map_settings.start_y, blank_sprite)
+        elseif (fget(player.lower_right_cell, 2)) then
+            level_up()
+            mset((player.lower_right.x/8)+map_settings.start_x,(player.lower_right.y/8)+map_settings.start_y, blank_sprite)
+        end
     end
 end
 
@@ -550,14 +554,18 @@ function animate_character_lvl4()
 end
 
 function level_up()
-    player.level += 1
-    health_counter = 1
-    -- if you level up to 4, move up 8 pixles
-    if (player.level == 4) then
-        player.y -= 8
+    if (player.level < 4) then
+        player.level += 1
+        health_counter = 1
+        -- if you level up to 4, move up 8 pixles
+        sfx(7)
+        
+        if (player.level == 4) then
+            player.y -= 8
+        end
     end
-    sfx(7)
     set_level_variablers()
+
 end
 
 function level_down()
