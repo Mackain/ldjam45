@@ -5,7 +5,7 @@ t=0
 function _init()
     jump_time=5
     gravity = 3
-
+    game_over = false
     music(0)
 
     player = {}
@@ -48,6 +48,41 @@ function _init()
     blank_sprite = 49
     drop_anim_speed = 3
     map_settings = {start_x = 0, start_y = 0, width = 16, height=16}
+
+    drops = initialize_drops()
+end
+
+function restart_game()
+    game_over=false
+    --reset player stats
+    player.x = 72
+    player.y = 72
+    player.whitespace = 5
+    player.speed = 0
+    player.speed_max = 2
+    player.jump_speed = 0
+    player.jump_strenght = 0
+    player.jump_time = jump_time
+    player.is_jumping = false
+    player.is_falling = false
+    player.is_flipped = true
+    player.on_ground = true
+    player.facing = false
+    player.run_state = 1
+    player.is_running = false
+    player.sprite = 64
+    player.level = 3
+    player.width = 8
+    player.height = 3
+    player.force = 0
+    player.gravity = 0
+    player.corners = {}
+    player.hitbox = {0,0,0,0}
+    player.inner_hitbox = {0,0,0,0}
+    player.upper_left = {x=0,y=0}
+    player.upper_right = {x=0,y=0}
+    player.lower_left= {x=0,y=0}
+    player.lower_right = {x=0,y=0}
 
     drops = initialize_drops()
 end
@@ -113,6 +148,8 @@ function _update()
         player.on_ground=false
         sfx(1)
     end
+
+    if(btnp(5) and game_over) then restart_game() end
 
     player.hitbox = side_col(1)
 
@@ -272,35 +309,17 @@ end
 function _draw()
 	cls()
 	map(map_settings.start_x,map_settings.start_y)
-    detect_player_damage()
-    detect_player_health()
-    for drop in all(drops) do
-	    draw_drop(drop)
+
+    if game_over then print("game over - press x to restart",2,64,7)
+    else
+        detect_player_damage()
+        detect_player_health(player.corners)
+        for drop in all(drops) do
+            draw_drop(drop)
+        end
+        draw_player(player)
+        print("health: " .. player.level,0,5,7)
     end
-    
-    -- if(player.is_falling) print("falling",0,0,7)
-    -- if(player.is_jumping) print("jumping",0,6,7)
-    -- if(player.on_ground) print("on_ground",0,12,7)
-    -- print("gravity: " .. player.gravity,0,18,7)
-    -- print("level: " .. player.level,0,0,7)
-    -- print("UL : " .. player.upper_left_cell,0,0,7)
-    -- print("UR : " .. player.upper_right_cell,0,5,7)
-    -- print("LL : " .. player.lower_left_cell,0,10,7)
-    -- print("LR : " .. player.lower_right_cell,0,15,7)
-    print("HEALTH : " .. player.level,0,20,7)
-        -- print("UL - (" .. player.corners[1].x .. "," .. player.corners[1].y .. ")")
-    -- print("UR - (" .. player.corners[2].x .. "," .. player.corners[2].y .. ")")
-    -- print("BL - (" .. player.corners[3].x .. "," .. player.corners[3].y .. ")")
-    -- print("BR - (" .. player.corners[4].x .. "," .. player.corners[4].y .. ")")
-    -- print("BOX" .. player.hitbox[1] .. "-" .. player.hitbox[2] .. "-" .. player.hitbox[3] .. "-" .. player.hitbox[4])
-    -- print("BOX" .. player.inner_hitbox[1] .. "-" .. player.inner_hitbox[2] .. "-" .. player.inner_hitbox[3] .. "-" .. player.inner_hitbox[4],0,10)
-    -- print("drop: l(" .. drops[2].x .. "," .. drops[2].y .. "). r(" .. (drops[2].x+8) .. "," .. (drops[2 ].y+8),0,1)
-    -- print("player: l(" .. player.x .. "," .. player.y .. "). r(" .. (player.x+player.width) .. "," .. (player.y+player.height),0,10)
-    -- print(isOverlap, 0, 15)
-    -- print("GLOBAL GRAVITY - " .. gravity,0,5,7)
-    -- print("PLAYER GRAVITY - " .. player.gravity,0,10,7)
-    -- print("PLAYER FORCE - " .. player.force,0,15,7)
-	draw_player(player)
 end
 
 function load_map()
@@ -362,6 +381,8 @@ function detect_player_damage()
     if gets_damage then
         player.level -= 1
     end
+
+    if player.level<=0 then game_over=true end
 end
 
 function detect_player_health()
