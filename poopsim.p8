@@ -18,6 +18,7 @@ function _init()
     player.jump_strenght = 0
     player.jump_time = jump_time
     player.is_jumping = false
+    player.is_falling = false
     player.on_ground = true
     player.facing = false
     player.run_frames = {64,65,66,67,68,69,70,71}
@@ -85,22 +86,39 @@ function _update()
     if(btnp(2)) then
         player.y -=1
         player.force = 8
+        player.is_jumping=true
+        player.on_ground=false
         sfx(1)
     end
 
     side_col(1)
 
-    --player.corners = get_player_corners()
-
-    
-    --box_col(1)
-    -- TODO do x pos FIRST otherwise Y doesnt work.
-
     player.gravity = gravity - player.force
+
+    if(player.gravity>1) then player.is_falling=true player.is_jumping=false
+    else player.is_falling=false end
+
+    --check for collision when falling
+    check_colision()
+
+    if (player.force > 0) then
+        player.force *= 0.9
+    end
+
+    for drop in all(drops) do
+        if drop.breaking == 0 then
+        move_drop(drop)
+        end
+    end
+end
+
+function check_colision()
     if(player.hitbox[1]>1 or player.hitbox[3]>1) then
         player.force=0
+        player.on_ground=true
+        player.is_jumping=false
+        player.is_falling=false
     else 
-
         local predicted_y = player.y + player.gravity
         local first_y_col = -1
 
@@ -121,16 +139,6 @@ function _update()
             player.y = predicted_y
         else
             player.y = first_y_col-1
-        end
-    end
-
-    if (player.force > 0) then
-        player.force *= 0.9
-    end
-
-    for drop in all(drops) do
-        if drop.breaking == 0 then
-        move_drop(drop)
         end
     end
 end
@@ -207,13 +215,17 @@ function _draw()
 	    draw_drop(drop)
     end
 
+    if player.is_falling then print("is_falling",0,0,7) end
+    if player.is_jumping then print("is_jumping",0,5,7) end
+    if player.on_ground then print("on_ground",0,10,7) end    
+    
     -- print("HEALTH - " .. player.level,0,0,7)
     -- print("UL - (" .. player.corners[1].x .. "," .. player.corners[1].y .. ")")
     -- print("UR - (" .. player.corners[2].x .. "," .. player.corners[2].y .. ")")
     -- print("BL - (" .. player.corners[3].x .. "," .. player.corners[3].y .. ")")
     -- print("BR - (" .. player.corners[4].x .. "," .. player.corners[4].y .. ")")
-    print("BOX" .. player.hitbox[1] .. "-" .. player.hitbox[2] .. "-" .. player.hitbox[3] .. "-" .. player.hitbox[4])
-    print("BOX" .. player.inner_hitbox[1] .. "-" .. player.inner_hitbox[2] .. "-" .. player.inner_hitbox[3] .. "-" .. player.inner_hitbox[4],0,10)
+    -- print("BOX" .. player.hitbox[1] .. "-" .. player.hitbox[2] .. "-" .. player.hitbox[3] .. "-" .. player.hitbox[4])
+    -- print("BOX" .. player.inner_hitbox[1] .. "-" .. player.inner_hitbox[2] .. "-" .. player.inner_hitbox[3] .. "-" .. player.inner_hitbox[4],0,10)
     -- print("GLOBAL GRAVITY - " .. gravity,0,5,7)
     -- print("PLAYER GRAVITY - " .. player.gravity,0,10,7)
     -- print("PLAYER FORCE - " .. player.force,0,15,7)
