@@ -26,7 +26,7 @@ function _init()
     player.run_state = 1
     player.is_running = false
     player.sprite = 64
-    player.level = 1
+    player.level = 3
     player.width = 8
     player.height = 3
     player.force = 0
@@ -400,7 +400,17 @@ function move_left(char)
 end
 
 function animate_character()
-    -- lvl1
+    if player.level == 3 then
+        animate_character_lvl3()
+    elseif player.level == 2 then
+        animate_character_lvl2()
+    else
+        animate_character_lvl1()
+    end
+end
+
+function animate_character_lvl1()
+-- lvl1
     if (player.on_ground) == true then
         player.sprite = 64
     end
@@ -423,6 +433,58 @@ function animate_character()
         if player.sprite >= 69 and player.sprite < 70 then
             player.sprite += 1
         end
+    end
+end
+
+function animate_character_lvl2()
+-- lvl1
+    if (player.on_ground) == true then
+        player.sprite = 72
+    end
+    -- animate running
+    if (player.is_running) == true then
+        player.sprite = 73
+    end
+    -- animate jumping
+    if player.is_jumping == true then
+        if player.sprite < 75  then
+            player.sprite = 75
+        elseif player.sprite < 76 then
+            player.sprite += 1
+        end
+    -- animate falling
+    elseif player.is_falling == true then
+        if player.sprite < 77  then
+            player.sprite = 77
+        end
+        if player.sprite >= 77 and player.sprite < 78 then
+            player.sprite += 1
+        end
+    end
+end
+
+function animate_character_lvl3()
+-- lvl1
+    if (player.on_ground) == true and player.is_running == false then
+        player.sprite = 96
+    end
+    -- animate running
+    if (player.is_running) == true then
+        player.sprite+=1
+        if player.sprite > 99 then
+            player.sprite = 97
+        end
+    end
+    -- animate jumping
+    if player.is_jumping == true then
+        if player.sprite < 101  then
+            player.sprite = 101
+        elseif player.sprite < 102 then
+            player.sprite += 1
+        end
+    -- animate falling
+    elseif player.is_falling == true then
+        player.sprite = 103
     end
 end
 
