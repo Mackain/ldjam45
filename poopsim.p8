@@ -11,6 +11,7 @@ function _init()
     player = {}
     player.x = 72
     player.y = 72
+    player.whitespace = 5
     player.speed = 0
     player.speed_max = 2
     player.jump_speed = 0
@@ -81,13 +82,11 @@ function _update()
     
 	if(btn(0)) then move_left(player) end
 	if(btn(1)) then move_right(player) end
-	-- if(btn(2)) then move_up(player) end
     if(btnp(2)) then
         player.y -=1
         player.force = 8
         sfx(1)
     end
-	if(btn(3)) then move_down(player) end
 
     side_col(1)
 
@@ -124,10 +123,6 @@ function _update()
             player.y = first_y_col-1
         end
     end
-    --inner hitbox stuff
-    --if(player.inner_hitbox[3]==1 and player.inner_hitbox[4]==1) then
-    --    player.y-=1
-    --end
 
     if (player.force > 0) then
         player.force *= 0.9
@@ -158,61 +153,37 @@ end
 
 function side_col(flag)
 
-    local whitespace=5
 
     player.hitbox = {0,0,0,0}
         
         --bottom
     for i = 0,player.width-1,1 do 
-        if (fget(mget(flr((player.x+i)/8),flr((player.y+player.height+5)/8)), flag)) then 
+        if (fget(mget(flr((player.x+i)/8),flr((player.y+player.height+player.whitespace)/8)), flag)) then 
             player.hitbox[1]+=1   
         end 
     end
     
     --right
     for i = 0,player.height-1,1 do 
-        if (fget(mget(flr((player.x+player.width)/8),flr((player.y+5+i)/8)), flag)) then 
+        if (fget(mget(flr((player.x+player.width)/8),flr((player.y+player.whitespace+i)/8)), flag)) then 
             player.hitbox[2]+=1   
         end  
     end
     
     --top
     for i = 0,player.width-1,1 do 
-        if (fget(mget(flr((player.x+i)/8),flr((player.y+5)/8)), flag)) then 
+        if (fget(mget(flr((player.x+i)/8),flr((player.y+player.whitespace)/8)), flag)) then 
             player.hitbox[3]+=1   
         end 
     end
         
     --left
     for i = 0,player.height-1,1 do 
-        if (fget(mget(flr((player.x-1)/8),flr((player.y+5+i)/8)), flag)) then 
+        if (fget(mget(flr((player.x-1)/8),flr((player.y+player.whitespace+i)/8)), flag)) then 
             player.hitbox[4]+=1   
         end
     end
      
-end
-	
-
-function box_col(flag)
-    player.inner_hitbox = {0,0,0,0}
-    player.hitbox = {0,0,0,0}
-    --TL
-    if (fget(mget(flr(player.corners[1].x/8),flr(player.corners[1].y/8)), flag)) player.hitbox[1] = 1
-    --TR
-    if (fget(mget(flr(player.corners[2].x/8),flr(player.corners[2].y/8)), flag)) player.hitbox[2] = 1
-    --BL
-    if (fget(mget(flr(player.corners[3].x/8),flr(player.corners[3].y/8)), flag)) player.hitbox[3] = 1
-    --BR
-    if (fget(mget(flr(player.corners[4].x/8),flr(player.corners[4].y/8)), flag)) player.hitbox[4] = 1
-
-    --iTL
-    if (fget(mget(flr((player.corners[1].x+1)/8),flr((player.corners[1].y+1)/8)), flag)) player.inner_hitbox[1] = 1
-    --iTR
-    if (fget(mget(flr((player.corners[2].x-1)/8),flr((player.corners[2].y+1)/8)), flag)) player.inner_hitbox[2] = 1
-    --iBL
-    if (fget(mget(flr((player.corners[3].x+1)/8),flr((player.corners[3].y-1)/8)), flag)) player.inner_hitbox[3] = 1
-    --iBR
-    if (fget(mget(flr((player.corners[4].x-1)/8),flr((player.corners[4].y-1)/8)), flag)) player.inner_hitbox[4] = 1
 end
 
 function check_collision_player(drop)
@@ -224,40 +195,6 @@ function check_collision_player(drop)
         end
     end
     return false
-end
-
-function get_player_corners2()
-    local whitespace = 5
-    corners = {}
-    --upper left
-    add(corners, { x = player.x, y = player.y + whitespace})
-    --upper right
-    add(corners, { x = player.x + player.width, y = corners[1].y })
-    --bottom left
-    add(corners, { x = player.x-1, y = player.y + whitespace + player.height }) 
-    --bottom right
-    add(corners, { x = player.x + player.width, y = player.y + whitespace + player.height }) 
-
-    return corners
-end
-
-function get_player_corners()
-    local whitespace = 5
-    corners = {{x=0,y=0},{x=0,y=0},{x=0,y=0},{x=0,y=0}}
-    --upper left
-    corners[1].x=player.x
-    corners[1].y=player.y+whitespace
-    --upper right
-    corners[2].y=corners[1].y
-    corners[2].x=corners[1].x+player.width-1
-    --bottom left
-    corners[3].x=corners[1].x
-    corners[3].y = corners[1].y+player.height-1
-    --bottom right
-    corners[4].y = corners[1].y+player.height-1
-    corners[4].x = corners[1].x+player.width-1
-
-    return corners
 end
 
 -->8
@@ -281,16 +218,7 @@ function _draw()
     -- print("PLAYER GRAVITY - " .. player.gravity,0,10,7)
     -- print("PLAYER FORCE - " .. player.force,0,15,7)
 	draw_player(player)
-    --upper left
-    spr(16, player.x, player.y+5)
-    --upper right
-    spr(16, player.x+player.width-1, player.y+5)
-    --lower left
-    spr(16, player.x, player.y+player.height-1+5)
-    --lower right
-    spr(16, player.x+player.width-1, player.y+player.height-1+5)
 
-    spr(16, 75, 75)
 end
 
 function draw_player(player)
@@ -350,11 +278,6 @@ function detect_player_health(corners)
 end
 
 -->8
-function move_up(char)
-	char.y-=2
-	if(char.y<0) then char.y=120 end
-end
-
 function move_right(char)
     if(player.hitbox[2] < 2) then
         char.x+=2
@@ -367,11 +290,6 @@ function move_left(char)
  	    char.x-=2
 	    if(char.x<0) then char.x=120 end
     end
-end
-
-function move_down(char)    
-        char.y+=2
-        if(char.y>120) then char.y=0 end
 end
 
 __gfx__
