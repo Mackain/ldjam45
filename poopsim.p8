@@ -389,7 +389,7 @@ function _draw()
 end
 
 function draw_rect()
-    rect( player.x, player.y + player.whitespace, player.x+player.width, player.y+player.whitespace+player.height, 8 )
+    rect( player.x, player.y + player.whitespace, player.x+player.width - 1, player.y+player.whitespace+player.height - 1, 8 )
 end
 
 function print_tutorial()
