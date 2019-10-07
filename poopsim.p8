@@ -73,29 +73,38 @@ function _init()
 end
 
 function initialize_map()
-    max_y = map_settings.start_y + map_settings.height
-    max_x = map_settings.start_x + map_settings.width
-    drops = {}
-    called_map+=1
-    for y=map_settings.start_y,max_y,1 
-    do
-        for x=map_settings.start_x, max_x ,1
+    check_last_level()
+    if is_last_level then
+        drops = {}
+        map_settings.start_x = 0
+        map_settings.start_y = 16
+        player.x = 60
+        player.y = 0
+    else    
+        max_y = map_settings.start_y + map_settings.height
+        max_x = map_settings.start_x + map_settings.width
+        drops = {}
+        called_map+=1
+        for y=map_settings.start_y,max_y,1 
         do
-            sprite = mget(x,y)
-            if sprite == drop_sprite or sprite == drop_sprite_2 then
-                add(drops, create_drop(x%16*8,y%16*8))
+            for x=map_settings.start_x, max_x ,1
+            do
+                sprite = mget(x,y)
+                if sprite == drop_sprite or sprite == drop_sprite_2 then
+                    add(drops, create_drop(x%16*8,y%16*8))
 
-                if(sprite == drop_sprite) then
-                    mset(x,y,blank_sprite)
-                else
-                    mset(x,y,sky_sprite)
+                    if(sprite == drop_sprite) then
+                        mset(x,y,blank_sprite)
+                    else
+                        mset(x,y,sky_sprite)
+                    end
                 end
-            end
-            if sprite == poop_sprite then
-                player.x = x%16*8
-                player.y = y%16*8
-                player.gravity = 0
-                mset(x,y,blank_sprite)
+                if sprite == poop_sprite then
+                    player.x = x%16*8
+                    player.y = y%16*8
+                    player.gravity = 0
+                    mset(x,y,blank_sprite)
+                end
             end
         end
     end
@@ -126,7 +135,7 @@ function _update()
         poke(0x5f30,1) 
         start_game()
     end
-	if(btn(0)) then
+	if(btn(0) and not game_over) then
         move_left(player)
         player.is_flipped = true
         if (player.on_ground == true) then
@@ -135,7 +144,7 @@ function _update()
             player.is_running = false
         end
     end
-	if(btn(1)) then 
+	if(btn(1) and not game_over) then 
         move_right(player)
         if (player.on_ground == true) then
             player.is_running = true
@@ -143,7 +152,7 @@ function _update()
             player.is_running = false
         end
     end
-    if((btnp(2) or btnp(❎)) and player.on_ground == true) then
+    if((btnp(2) or btnp(❎)) and player.on_ground == true and not game_over) then
         player.y -=1
         player.force = 8
         player.is_jumping=true
@@ -391,6 +400,9 @@ function _draw()
 	cls()
 	map(map_settings.start_x,map_settings.start_y)
     
+    if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
+    else
+        
     if is_intro then
         draw_intro_text()
         draw_press_start()
@@ -406,9 +418,7 @@ function _draw()
     if not is_intro and not is_last_level and show_collision then
         draw_rect()
     end
-    
-    if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
-    else
+
         detect_player_damage()
         detect_player_health()
         for drop in all(drops) do
