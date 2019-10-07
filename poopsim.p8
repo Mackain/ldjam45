@@ -9,6 +9,7 @@ function _init()
     music(0)
 
     is_intro = true
+    is_last_level = false
     intro_new_y = 150
     intro_counter = 0
     counter_frame_limit = 10
@@ -49,6 +50,7 @@ function _init()
     player.upper_right = {x=0,y=0}
     player.lower_left= {x=0,y=0}
     player.lower_right = {x=0,y=0}
+    
 
     intro_text = { "DISCOVER YOURSELF...", "GO OUT" , "A POOP" , "YOU ARE NOTHING" }
     
@@ -61,7 +63,9 @@ function _init()
     blank_sprite = 48
     sky_sprite = 47
     drop_anim_speed = 3
-    map_settings = {start_x = 0, start_y = 16, width = 16, height=16}
+    map_settings = {start_x = 0, start_y = 16, width = 16, height=16, last_level = 7}
+
+    last_level_coords = {x = map_settings.width*(map_settings.last_level-1), y = 0 }
 
     initialize_map()
 end
@@ -110,6 +114,8 @@ end
 
 -->8
 function _update()
+    check_last_level()
+
     check_counters()
 
     player.is_running = false
@@ -190,6 +196,13 @@ function check_goal()
             goal_counter = 1
             load_new_map()
         end
+    end
+end
+
+function check_last_level()
+    if map_settings.start_x == last_level_coords.x and map_settings.start_y == last_level_coords.y then
+        is_last_level = true
+        gravity = 1
     end
 end
 
@@ -340,6 +353,9 @@ function _draw()
         draw_intro_text()
         draw_press_start()
         draw_game_title()
+    elseif is_last_level then
+        draw_last_level()
+        draw_player(player)
     else
         print("health: " .. player.level,5,5,7)
         draw_player(player)
@@ -612,6 +628,11 @@ function draw_game_title()
     print("POOP",80,7,4)
     print("SIM",80,14,12)
     spr(96,100,8)
+end
+
+function draw_last_level()
+    text = "THE END"
+    print(text,hcenter(text), 60, 7)
 end
 
 function start_game()
