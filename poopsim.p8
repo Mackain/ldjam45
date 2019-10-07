@@ -6,7 +6,7 @@ function _init()
     jump_time=5
     gravity = 3
     game_over = false
-    music(0)
+    --music(0)
 
     show_collision = true
 
@@ -152,6 +152,7 @@ function _update()
     end
 
     player.hitbox = side_col(1)
+    player.inner_hitbox = inner_col(1)
 
     player.gravity = gravity - player.force
 
@@ -159,6 +160,11 @@ function _update()
     else player.is_falling=false end
     --check for collision when falling
     check_colision()
+
+    --after we moved we check if we are stuck
+    if player.inner_hitbox[1] > 0 then
+        player.y -= 1
+    end
 
     if (player.force > 0) then
         player.force *= 0.9
@@ -340,6 +346,40 @@ function side_col(flag)
     --left
     for i = 0,player.height-1,1 do 
         if (fget(mget(flr((player.x-1)/8)+map_settings.start_x,flr((player.y+player.whitespace+i)/8)+map_settings.start_y), flag)) then 
+            hitbox[4]+=1   
+        end
+    end
+     return hitbox
+end
+
+function inner_col(flag)
+
+    hitbox = {0,0,0,0}
+        
+        --bottom
+        for i = 0,player.width-1,1 do 
+            if (fget(mget(flr((player.x+i)/8)+map_settings.start_x,flr((player.y+player.height+player.whitespace-1)/8)+map_settings.start_y), flag)) then 
+                hitbox[1]+=1   
+            end 
+        end
+    
+    --right
+    for i = 0,player.height-1,1 do 
+        if (fget(mget(flr((player.x+player.width-1)/8)+map_settings.start_x,flr((player.y+player.whitespace+i)/8)+map_settings.start_y), flag)) then 
+            hitbox[2]+=1   
+        end  
+    end
+    
+    --top
+    for i = 0,player.width-1,1 do 
+        if (fget(mget(flr((player.x+i)/8)+map_settings.start_x,flr((player.y+player.whitespace)/8)+map_settings.start_y+1), flag)) then 
+            hitbox[3]+=1   
+        end 
+    end
+        
+    --left
+    for i = 0,player.height-1,1 do 
+        if (fget(mget(flr((player.x-1)/8)+map_settings.start_x+1,flr((player.y+player.whitespace+i)/8)+map_settings.start_y), flag)) then 
             hitbox[4]+=1   
         end
     end
