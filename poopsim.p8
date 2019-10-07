@@ -6,7 +6,7 @@ function _init()
     jump_time=5
     gravity = 3
     game_over = false
-    --music(0)
+    music(0)
 
     show_collision = false
 
@@ -65,7 +65,7 @@ function _init()
     blank_sprite = 48
     sky_sprite = 47
     drop_anim_speed = 3
-    map_settings = {start_x = 0, start_y = 16, width = 16, height=16, last_level = 8}
+    map_settings = {start_x = 0, start_y = 16, width = 16, height=16, last_level = 9}
 
     last_level_coords = {x = map_settings.width*(map_settings.last_level-1), y = 0 }
 
@@ -76,7 +76,7 @@ function initialize_map()
     check_last_level()
     if is_last_level then
         drops = {}
-        map_settings.start_x = 0
+        map_settings.start_x = 16
         map_settings.start_y = 16
         player.x = 60
         player.y = 0
@@ -135,7 +135,7 @@ function _update()
         poke(0x5f30,1) 
         start_game()
     end
-	if(btn(0) and not game_over) then
+	if(btn(0) and not game_over and not is_last_level) then
         move_left(player)
         player.is_flipped = true
         if (player.on_ground == true) then
@@ -144,7 +144,7 @@ function _update()
             player.is_running = false
         end
     end
-	if(btn(1) and not game_over) then 
+	if(btn(1) and not game_over and not is_last_level) then 
         move_right(player)
         if (player.on_ground == true) then
             player.is_running = true
@@ -152,7 +152,7 @@ function _update()
             player.is_running = false
         end
     end
-    if((btnp(2) or btnp(❎)) and player.on_ground == true and not game_over) then
+    if((btnp(2) or btnp(❎)) and player.on_ground == true and not game_over and not is_last_level) then
         player.y -=1
         player.force = 8
         player.is_jumping=true
