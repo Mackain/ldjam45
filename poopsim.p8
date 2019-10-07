@@ -8,6 +8,8 @@ function _init()
     game_over = false
     music(0)
 
+    show_collision = true
+
     is_intro = true
     is_last_level = false
     intro_new_y = 150
@@ -360,6 +362,10 @@ function _draw()
         print("health: " .. player.level,5,5,7)
         draw_player(player)
     end
+
+    if not is_intro and not is_last_level and show_collision then
+        draw_rect()
+    end
     
     if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
     else
@@ -380,6 +386,10 @@ function _draw()
 
         print_tutorial()
     end
+end
+
+function draw_rect()
+    rect( player.x, player.y + player.whitespace, player.x+player.width, player.y+player.whitespace+player.height, 8 )
 end
 
 function print_tutorial()
@@ -673,11 +683,7 @@ end
 
 function set_level_variablers()
     -- default values (lvl1)
-    player.vertical_tiles = 1
-    player.horizontal_tiles = 1
-    player.width = 8
-    player.height = 3
-    player.whitespace = 5
+
 
     if player.level == 4 then
         player.vertical_tiles = 2
@@ -685,6 +691,24 @@ function set_level_variablers()
         player.width = 8
         player.height = 14
         player.whitespace = 2
+    elseif player.level == 3 then
+        player.vertical_tiles = 1
+        player.horizontal_tiles = 1
+        player.width = 8
+        player.height = 8
+        player.whitespace = 0
+    elseif player.level == 2 then
+        player.vertical_tiles = 1
+        player.horizontal_tiles = 1
+        player.width = 8
+        player.height = 5
+        player.whitespace = 3
+    else
+        player.vertical_tiles = 1
+        player.horizontal_tiles = 1
+        player.width = 8
+        player.height = 3
+        player.whitespace = 5
     end
 end
 
