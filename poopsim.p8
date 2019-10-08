@@ -1,76 +1,94 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
-t=0
+
+-- # INIT #
 function _init()
+-- #GLOBAL VARIABLES#
+
+    -- constants
     jump_time=5
     gravity = 3
-    game_over = false
-    music(0)
 
+    -- debugging flags
     show_collision = false
 
+    -- game status flags
+    is_game_over = false
     is_intro = true
     is_last_level = false
-    intro_new_y = 150
+
+    -- counters
     intro_counter = 0
     counter_frame_limit = 10
     goal_counter = 0
     health_counter = 0
     called_map = 0
-    player = {}
-    drops = {}
-    player.x = 72
-    player.y = 72
-    player.whitespace = 5
-    player.speed = 0
-    player.speed_max = 2
-    player.jump_speed = 0
-    player.jump_strenght = 0
-    player.jump_time = jump_time
-    player.is_jumping = false
-    player.is_falling = false
-    player.is_flipped = true
-    player.on_ground = true
-    player.facing = false
-    player.run_frames = {64,65,66,67,68,69,70,71}
-    player.run_state = 1
-    player.is_running = false
-    player.sprite = 64
-    player.level = 1
-    player.width = 8
-    player.height = 3
-    player.force = 0
-    player.gravity = 0
-    player.corners = {}
-    player.hitbox = {0,0,0,0}
-    player.inner_hitbox = {0,0,0,0}
-    player.vertical_tiles = 1
-    player.horizontal_tiles = 1
 
-    player.upper_left = {x=0,y=0}
-    player.upper_right = {x=0,y=0}
-    player.lower_left= {x=0,y=0}
-    player.lower_right = {x=0,y=0}
-    
+    -- game objects
+    drops = {}
+    player = {
+        x = 72,
+        y = 72,
+        whitespace = 5,
+        speed = 0,
+        speed_max = 2,
+        jump_speed = 0,
+        jump_strenght = 0,
+        jump_time = jump_time,
+        is_jumping = false,
+        is_falling = false,
+        is_flipped = true,
+        is_running = false,
+        on_ground = true,
+        facing = false,
+        run_frames = {64,65,66,67,68,69,70,71},
+        run_state = 1    ,
+        sprite = 64,
+        level = 1,
+        width = 8,
+        height = 3,
+        force = 0,
+        gravity = 0,
+        corners = {},
+        hitbox = {0,0,0,0},
+        inner_hitbox = {0,0,0,0},
+        vertical_tiles = 1,
+        horizontal_tiles = 1,
+        upper_left = {x=0,y=0},
+        upper_right = {x=0,y=0},
+        lower_left= {x=0,y=0},
+        lower_right = {x=0,y=0}, 
+    }
+
+    drop_offset = 8
+    drop_anim_speed = 3
+
+    -- sprites
+    sprites = {
+        drop_sprite = 192,
+        drop_sprite_sky = 224,
+        poop_sprite = 64,
+        wet_floor = 003,
+        dry_floor = 002,
+        blank_sprite = 48,
+        sky_sprite = 47
+    }
 
     intro_text = { "DISCOVER YOURSELF...", "GO OUT" , "A POOP" , "YOU ARE NOTHING" }
-    
-    offset = 8
-    drop_sprite = 192
-    drop_sprite_2 = 224
-    poop_sprite = 64
-    wet_floor = 003
-    dry_floor = 002
-    blank_sprite = 48
-    sky_sprite = 47
-    drop_anim_speed = 3
+
+    -- map variables
     map_settings = {start_x = 0, start_y = 16, width = 16, height=16, last_level = 9}
-
     last_level_coords = {x = map_settings.width*(map_settings.last_level-1), y = 0 }
-
+    music(0)
     initialize_map()
 end
+
+-->8
+
+--#FUNCTIONS#
+
+-- # Manage map/levels #
 
 function initialize_map()
     check_last_level()
@@ -90,20 +108,20 @@ function initialize_map()
             for x=map_settings.start_x, max_x ,1
             do
                 sprite = mget(x,y)
-                if sprite == drop_sprite or sprite == drop_sprite_2 then
+                if sprite == sprites.drop_sprite or sprite == sprites.drop_sprite_sky then
                     add(drops, create_drop(x%16*8,y%16*8))
 
-                    if(sprite == drop_sprite) then
-                        mset(x,y,blank_sprite)
+                    if(sprite == sprites.drop_sprite) then
+                        mset(x,y,sprites.blank_sprite)
                     else
-                        mset(x,y,sky_sprite)
+                        mset(x,y,sprites.sky_sprite)
                     end
                 end
-                if sprite == poop_sprite then
+                if sprite == sprites.poop_sprite then
                     player.x = x%16*8
                     player.y = y%16*8
                     player.gravity = 0
-                    mset(x,y,blank_sprite)
+                    mset(x,y,sprites.blank_sprite)
                 end
             end
         end
@@ -112,7 +130,7 @@ end
 
 function create_drop(x,y)
     new_drop = {
-       sprite=drop_sprite,
+       sprite=sprites.drop_sprite,
         x=x,
         y=y,
         breaking=0,
@@ -135,7 +153,7 @@ function _update()
         poke(0x5f30,1) 
         start_game()
     end
-	if(btn(0) and not game_over and not is_last_level) then
+	if(btn(0) and not is_game_over and not is_last_level) then
         move_left(player)
         player.is_flipped = true
         if (player.on_ground == true) then
@@ -144,7 +162,7 @@ function _update()
             player.is_running = false
         end
     end
-	if(btn(1) and not game_over and not is_last_level) then 
+	if(btn(1) and not is_game_over and not is_last_level) then 
         move_right(player)
         if (player.on_ground == true) then
             player.is_running = true
@@ -152,7 +170,7 @@ function _update()
             player.is_running = false
         end
     end
-    if((btnp(2) or btnp(❎)) and player.on_ground == true and not game_over and not is_last_level) then
+    if((btnp(2) or btnp(❎)) and player.on_ground == true and not is_game_over and not is_last_level) then
         player.y -=1
         player.force = 8
         player.is_jumping=true
@@ -293,13 +311,13 @@ function move_drop(drop)
 	if floor_collision or player_collision	then
 	    drop.breaking = 1
         if floor_collision then
-	        mset(((drop.x+4)/8)+map_settings.start_x,((drop.y+offset)/8)+map_settings.start_y,wet_floor)
+	        mset(((drop.x+4)/8)+map_settings.start_x,((drop.y+drop_offset)/8)+map_settings.start_y,sprites.wet_floor)
         end
 	end
 end
 
 function check_drop_collision_floor(drop)
-	return fget(mget(((drop.x+4)/8)+map_settings.start_x,((drop.y+offset)/8)+map_settings.start_y), 1)
+	return fget(mget(((drop.x+4)/8)+map_settings.start_x,((drop.y+drop_offset)/8)+map_settings.start_y), 1)
 end
 
 function check_drop_collision_player(drop)
@@ -400,7 +418,7 @@ function _draw()
 	cls()
 	map(map_settings.start_x,map_settings.start_y)
     
-    if game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
+    if is_game_over then print("game over",48,64,7) print("press enter to restart", 20,74,7)
     else
         
     if is_intro then
@@ -463,15 +481,6 @@ end
 
 function draw_player(player)
 	spr(player.sprite, player.x, player.y, player.horizontal_tiles,player.vertical_tiles, player.is_flipped)
-
-    -- stuff
-    -- spr(16, player.upper_left.x, player.upper_left.y)
-    -- spr(16, drops[1].x, drops[1].y)
-    -- --spr(16, drops[1].x+8, drops[1].y+8)
-    -- spr(16, drops[1].x+8, shit_counter)
-    --spr(16, player.x, player.y)
-    --spr(16, player.x, player.y)
-    --spr(16, player.x, player.y)
 end
 
 function draw_drop(drop)
@@ -488,7 +497,7 @@ end
 function reset_drop(drop)
     drop.x = drop.orig_x
     drop.y = drop.orig_y
-    drop.sprite = drop_sprite
+    drop.sprite = sprites.drop_sprite
     drop.breaking = 0
 end
 
@@ -508,7 +517,7 @@ function detect_player_damage()
     for player_floor_x = player.x,player.x+player.width-1,1 do
         if (fget(mget(((player_floor_x)/8)+map_settings.start_x,((player_floor_y)/8)+map_settings.start_y), 0) and not gets_damage) then
             gets_damage=true
-            mset(((player_floor_x)/8)+map_settings.start_x,((player_floor_y)/8)+map_settings.start_y,dry_floor)
+            mset(((player_floor_x)/8)+map_settings.start_x,((player_floor_y)/8)+map_settings.start_y,sprites.dry_floor)
             break
         end
     end
@@ -517,23 +526,23 @@ function detect_player_damage()
        level_down()
     end
 
-    if player.level<=0 then game_over=true end
+    if player.level<=0 then is_game_over=true end
 end
 
 function detect_player_health()
     if health_counter == 0 then
         if(fget(player.upper_right_cell, 2)) then
             level_up()
-            mset((player.upper_right.x/8)+map_settings.start_x,(player.upper_right.y/8)+map_settings.start_y, blank_sprite)
+            mset((player.upper_right.x/8)+map_settings.start_x,(player.upper_right.y/8)+map_settings.start_y, sprites.blank_sprite)
         elseif (fget(player.upper_left_cell, 2)) then
             level_up()
-            mset((player.upper_left.x/8)+map_settings.start_x,(player.upper_left.y/8)+map_settings.start_y, blank_sprite)
+            mset((player.upper_left.x/8)+map_settings.start_x,(player.upper_left.y/8)+map_settings.start_y, sprites.blank_sprite)
         elseif (fget(player.lower_left_cell, 2)) then
             level_up()
-            mset((player.lower_left.x/8)+map_settings.start_x,(player.lower_left.y/8)+map_settings.start_y, blank_sprite)
+            mset((player.lower_left.x/8)+map_settings.start_x,(player.lower_left.y/8)+map_settings.start_y, sprites.blank_sprite)
         elseif (fget(player.lower_right_cell, 2)) then
             level_up()
-            mset((player.lower_right.x/8)+map_settings.start_x,(player.lower_right.y/8)+map_settings.start_y, blank_sprite)
+            mset((player.lower_right.x/8)+map_settings.start_x,(player.lower_right.y/8)+map_settings.start_y, sprites.blank_sprite)
         end
     end
 end
@@ -703,10 +712,7 @@ function start_game()
 end
 
 function hcenter(s)
-  -- screen center minus the
-  -- string length times the 
-  -- pixels in a char's width,
-  -- cut in half
+  -- screen center minus the string length times the pixels in a char's width, cut in half 
   return 64-#s*2
 end
 
@@ -733,8 +739,6 @@ end
 
 function set_level_variablers()
     -- default values (lvl1)
-
-
     if player.level == 4 then
         player.vertical_tiles = 2
         player.horizontal_tiles = 1
