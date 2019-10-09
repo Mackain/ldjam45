@@ -43,7 +43,7 @@ function _init()
         on_ground = true,
         facing = false,
         run_frames = {64,65,66,67,68,69,70,71},
-        run_state = 1    ,
+        run_state = 1,
         sprite = 64,
         level = 1,
         width = 8,
@@ -322,7 +322,7 @@ end
 
 function check_drop_collision_player(drop)
     
-    for dropx=flr(drop.x), flr(drop.x)+8,1 do
+    for dropx=flr(drop.x+1), flr(drop.x)+7,1 do
         for dropy=flr(drop.y), flr(drop.y)+8 ,1 do
             if flr(player.upper_left.x) == dropx and flr(player.upper_left.y) == dropy then
                 level_down()
@@ -514,7 +514,7 @@ function detect_player_damage()
 
     player_floor_y= player.y+player.whitespace+player.height
 
-    for player_floor_x = player.x,player.x+player.width-1,1 do
+    for player_floor_x = player.x+1,player.x+player.width-2,1 do
         if (fget(mget(((player_floor_x)/8)+map_settings.start_x,((player_floor_y)/8)+map_settings.start_y), 0) and not gets_damage) then
             gets_damage=true
             mset(((player_floor_x)/8)+map_settings.start_x,((player_floor_y)/8)+map_settings.start_y,sprites.dry_floor)
@@ -750,7 +750,7 @@ function set_level_variablers()
         player.horizontal_tiles = 1
         player.width = 8
         player.height = 8
-        player.whitespace = 0
+        player.whitespace = 1
     elseif player.level == 2 then
         player.vertical_tiles = 1
         player.horizontal_tiles = 1
